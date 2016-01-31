@@ -3,7 +3,7 @@
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
-Version: 2.0.1
+Version: 1.5.0
 */
 
 //check PHP Version
@@ -52,7 +52,7 @@ if(strlen(DBNAME)>0){
 
 //AntiCSRF
 if(!isset($_SESSION['csrf'])){
-	$csrf = uniqid('gf', true);
+	$csrf = hash('sha256',uniqid('yF', true).rand(1,1000));
 	$_SESSION['csrf'] = $csrf;
 }
 

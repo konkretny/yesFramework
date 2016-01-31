@@ -102,5 +102,9 @@ function genMinutesOptionsList(){
     return $result;
 }
 
+function getCSRF(){
+    return $_SESSION['csrf'];
+}
+
 
 ?>
