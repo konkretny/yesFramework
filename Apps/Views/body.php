@@ -3,10 +3,11 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="Author" content="Marcin Romanowicz" />
+                <link rel="stylesheet" href="css/style.css" type="text/css" />
 	</head>
 	<body>
-		<div style="height:100px;width:100%;background-color:gray;text-align:center;font-size:25px;"><?=$header ?></div>
-		<div style="height:600px;width:100%;background-color:#ccc;text-align:center;font-size:25px;"><?=$body ?></div>
-		<div style="height:300px;width:100%;background-color:black;color:#fff;text-align:center;font-size:25px;"><?=$footer ?></div>
+		<div id="header"><img id="logo" src="img/logo-yesframework.png" /><br /><?=$header ?></div>
+		<div id="body"><?=$body ?></div>
+		<div id="footer"><?=$footer ?></div>
 	</body>
 </html>

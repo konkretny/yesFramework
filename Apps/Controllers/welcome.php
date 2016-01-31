@@ -1,8 +1,8 @@
 <?php
 use Apps\Models\Hello;
 
-
-$data = Hello::hello_user('Stranger');
+$data ='<h2>yesFramework has been installed correctly (probably :))</h2>';
+$data .= Hello::hello_user('Stranger');
 
 $data_to_body = array (
 	"header" => "example header",
