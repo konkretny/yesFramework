@@ -11,5 +11,5 @@ $data_to_body = array (
 	);
 	
 $base->load_view('body.php',$data_to_body);
-echo $view->option("my value 1","my value 2");
+
 ?>
