@@ -1,9 +1,14 @@
 <?php
 
-function check_email($data){
-	if(preg_match('/^[a-zA-Z0-9\.\-_]+\@[a-zA-Z0-9\.\-_]+\.[a-z]{2,6}$/D',$data)){$result = 1;}else{$result = 0;}
+function check_email($email){
+	if (filter_var($email, FILTER_VALIDATE_EMAIL)){$result = 1;}else{$result = 0;}
 	return $result;
 	}
+	
+function check_ip($ip){
+	if (filter_var($ip, FILTER_VALIDATE_IP)){$result = 1;}else{$result = 0;}
+	return $result;
+}
 	
 function check_integer($data,$param){
 	if($param==0){ //only +
@@ -83,7 +88,7 @@ function getIP(){
 function genHoursOptionsList(){
     $i=0;
     $result='';
-    while($i<25){
+    while($i<24){
         if($i<10){$i='0'.$i;}
         $result .= '<option value="'.$i.'">'.$i.'</option>';
         $i++;

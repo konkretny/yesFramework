@@ -5,6 +5,7 @@ class Base{
     
 	public function load_view($file,$var = array()){
 		extract($var);
+		$view = new View();
 		ob_start();
 		include ('../Apps/Views/'.$file);
 		$render = ob_get_clean();

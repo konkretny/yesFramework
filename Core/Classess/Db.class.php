@@ -61,6 +61,7 @@ class Db{
 	static public function pdo_read($query,$var = array()){
 		global $PDO;
 		global $database_type;
+
 		try{
 				$qr = $PDO->prepare($query);
 				$i=1;

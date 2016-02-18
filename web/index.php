@@ -3,7 +3,7 @@
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
-Version: 1.5.0
+Version: 1.6.0
 */
 
 //check PHP Version
@@ -29,8 +29,11 @@ require_once('../Core/helper.php');
 
 //register functions as base
 use Core\Classess\Base;
-use Core\Classess\Db;
+use Core\Classess\Validator;
+use Core\Classess\View;
 $base = new Base();
+$validator = new Validator();
+$view = new View();
 
 //load config
 require_once('../core/config.php');
@@ -55,7 +58,6 @@ if(!isset($_SESSION['csrf'])){
 	$csrf = hash('sha256',uniqid('yF', true).rand(1,1000));
 	$_SESSION['csrf'] = $csrf;
 }
-
 
 //start
 if(!isset($_GET['page'])){
