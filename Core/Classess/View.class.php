@@ -10,9 +10,9 @@ class View{
 		if(isset($options['class'])){$class=' class="'.$options['class'].'" ';}else{$class=NULL;}
 		if(isset($options['placeholder'])){$placeholder=' placeholder="'.$options['placeholder'].'" ';}else{$placeholder=NULL;}
 		if(isset($options['value'])){$value=' value="'.$options['value'].'" ';}else{$value=NULL;}
-		
-		
-		return '<input'.$id.$type.$nameform.$class.$placeholder.$value.'/>';
+	
+		$result = '<input'.$id.$type.$nameform.$class.$placeholder.$value.'/>';
+                return preg_replace('/\s\s+/', ' ', $result);
 	}
 	
 	public function option($value1,$value2=NULL){
