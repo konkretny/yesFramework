@@ -38,7 +38,7 @@ function encrypt($key,$value){
     $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);  
     mcrypt_generic_init($mopen, $key, $iv);
     
-    return base64_encode(mcrypt_generic($mopen, $value));
+    return base64_encode(rtrim(mcrypt_generic($mopen, $value)));
 }
 
 function decrypt($key,$value){
@@ -47,7 +47,7 @@ function decrypt($key,$value){
     $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);  
     mcrypt_generic_init($mopen, $key, $iv);
     
-    return mdecrypt_generic($mopen, base64_decode($value));
+    return rtrim(mdecrypt_generic($mopen, base64_decode($value)));
 }
 
 function curl_get($url)
