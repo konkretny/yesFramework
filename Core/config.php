@@ -17,18 +17,22 @@ define("NAME","Name your website");
 //error reporting 0 -off, -1 -on
 error_reporting(-1);
 
-//db type 0 - MySQL/MariaDB, 1- PostgreSQL
+//db type 0 - MySQL/MariaDB, 1- PostgreSQL, 2- SQLite
 define("DBTYPE",0);
 
-//if db type 1
+//IF DBTYPE 1
 define("PGSQLSCHEMA",""); //if PostreSQL schema name other than public
 
-//db info
+
+//db info - EDIT IF YOUR DBTYPE IS 0 OR 1
 define("HOST",""); //if empty the database connection is disabled
 define("DBNAME","");
 define("PORT",""); //if empty port is default
 define("DBUSER","");
 define("DBPASS","");
+
+//dbinfo - EDIT IF YOUR DBTYPE IS 2
+define("DB_SQLITE_FILE_PATH",""); //your database path with name - SQLite
 
 
 ?>

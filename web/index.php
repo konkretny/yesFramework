@@ -3,7 +3,7 @@
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
-Version: 1.6.1
+Version: 1.7.0
 */
 
 //check PHP Version
@@ -19,7 +19,8 @@ session_start();
 //autloader
 function ClassLoader($className)
 {
-    require('../'.$className.'.class.php');
+	$className = (string) str_replace('\\', DIRECTORY_SEPARATOR, $className);
+    require_once('../'.$className.'.class.php');
     return true;
 } 
 spl_autoload_register('ClassLoader');
@@ -36,16 +37,21 @@ $validator = new Validator();
 $view = new View();
 
 //load config
-require_once('../core/config.php');
+require_once('../Core/config.php');
 
 //PDO connect
-if(strlen(DBNAME)>0){
+if(strlen(DBNAME)>0 || strlen(DB_SQLITE_FILE_PATH)>0){
 	if(PORT==''){$port_nr='';}else{$port_nr=';port='.PORT;}
-	if(DBTYPE==0){$database_type='mysql:';}elseif(DBTYPE==1){$database_type='pgsql:';}else{echo 'error database type';exit;}
+	if(DBTYPE==0){$database_type='mysql:';}elseif(DBTYPE==1){$database_type='pgsql:';}elseif(DBTYPE==2){$database_type='sqlite:';}else{echo 'error database type';exit;}
 
 	try {
-		  $PDO = new PDO($database_type.'host='.HOST.$port_nr.';dbname='.DBNAME, DBUSER, DBPASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+		if(DBTYPE==2){
+			$PDO = new PDO($database_type.DB_SQLITE_FILE_PATH);
+		}
+		else{
+			$PDO = new PDO($database_type.'host='.HOST.$port_nr.';dbname='.DBNAME, DBUSER, DBPASS, array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
                   if(strlen(PGSQLSCHEMA)>0){$PDO->exec('SET search_path TO '.PGSQLSCHEMA);}
+		}
 	}
 
 	catch(PDOException $e) {
@@ -79,7 +85,6 @@ else
                 }
 
 }
-
 	
 
 
