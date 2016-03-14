@@ -19,7 +19,7 @@ session_start();
 //autloader
 function ClassLoader($className)
 {
-	$className = (string) str_replace('\\', DIRECTORY_SEPARATOR, $className);
+    $className = (string) str_replace('\\', DIRECTORY_SEPARATOR, $className);
     require_once('../'.$className.'.class.php');
     return true;
 } 
