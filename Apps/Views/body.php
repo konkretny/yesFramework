@@ -4,6 +4,7 @@
 		<meta charset="utf-8" />
 		<meta name="Author" content="Marcin Romanowicz" />
                 <link rel="stylesheet" href="css/style.css" type="text/css" />
+                <title><?=NAME;?></title>
 	</head>
 	<body>
 		<div id="header"><img id="logo" src="img/logo-yesframework.png" /><br /><?=$header ?></div>
