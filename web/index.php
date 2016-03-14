@@ -3,7 +3,7 @@
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
-Version: 1.7.0
+Version: 1.7.1
 */
 
 //check PHP Version
@@ -38,6 +38,9 @@ $view = new View();
 
 //load config
 require_once('../Core/config.php');
+
+//load language
+require_once('../Core/Language/'.LANGUAGE.'.php');
 
 //PDO connect
 if(strlen(DBNAME)>0 || strlen(DB_SQLITE_FILE_PATH)>0){

@@ -2,6 +2,9 @@
 //define URL adress
 define("URL","http://yoururladress");
 
+//define language
+define("LANGUAGE","en_EN");
+
 //timezones
 date_default_timezone_set('Europe/Warsaw');
 
