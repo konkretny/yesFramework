@@ -2,7 +2,6 @@
     "name": "yesframework.com/yesframework",
     "description": "it's very, very easy PHP framework.",
     "keywords": ["php","framework"],
-    "version": "1.7.2",
     "homepage": "http://yesframework.com",
     "license": "MIT",
     "authors": [
