@@ -1,7 +1,17 @@
 {
-    "name": "konkretny.pl/yesframework",
+    "name": "yesframework.com/yesframework",
     "description": "it's very, very easy PHP framework.",
+    "keywords": ["php","framework"],
     "version": "1.7.2",
+    "homepage": "http://yesframework.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marcin Romanowicz",
+            "homepage": "http://konkretny.pl",
+            "role": "Author"
+        }
+    ],
     "require": {
         "php": ">=5.5.24"
     }
