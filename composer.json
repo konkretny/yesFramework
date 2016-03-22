@@ -1,0 +1,7 @@
+{
+    "name": "Konkretny.pl/yesFramework",
+    "description": "it's very, very easy PHP framework.",
+    "require": {
+        "php": ">=5.5.24"
+    }
+}
