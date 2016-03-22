@@ -10,8 +10,11 @@ class View{
 		if(isset($options['class'])){$class=' class="'.$options['class'].'" ';}else{$class=NULL;}
 		if(isset($options['placeholder'])){$placeholder=' placeholder="'.$options['placeholder'].'" ';}else{$placeholder=NULL;}
 		if(isset($options['value'])){$value=' value="'.$options['value'].'" ';}else{$value=NULL;}
+                if(isset($options['size'])){$size=' size="'.$options['size'].'" ';}else{$size=NULL;}
+                if(isset($options['style'])){$style=' style="'.$options['style'].'" ';}else{$style=NULL;}
+                if(isset($options['myparam'])){$myparam=' '.$options['myparam'].' ';}else{$myparam=NULL;}
 	
-		$result = '<input'.$id.$type.$nameform.$class.$placeholder.$value.'/>';
+		$result = '<input'.$id.$type.$nameform.$class.$placeholder.$value.$size.$style.$myparam.'/>';
                 return preg_replace('/\s\s+/', ' ', $result);
 	}
 	

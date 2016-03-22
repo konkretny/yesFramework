@@ -85,6 +85,10 @@ function getIP(){
     return $_SERVER['REMOTE_ADDR'];
 }
 
+function getServIP(){
+    return $_SERVER['HTTP_REFERER'];
+}
+
 function genHoursOptionsList(){
     $i=0;
     $result='';
