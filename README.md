@@ -4,4 +4,4 @@ Enjoy! :)
 
 More information: http://yesframework.com
 
-Version 1.7.2
+Version 1.7.3
