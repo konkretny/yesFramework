@@ -11,7 +11,6 @@ if(phpversion()<'5.5.24' ){
     exit;
 }
 
-
 //start session
 session_start();
 
@@ -26,14 +25,6 @@ spl_autoload_register('ClassLoader');
 
 //load helpers
 require_once('../Core/helper.php');
-
-//register functions as base
-use Core\Classess\Base;
-use Core\Classess\Validator;
-use Core\Classess\View;
-$base = new Base();
-$validator = new Validator();
-$view = new View();
 
 //load config
 require_once('../Core/config.php');

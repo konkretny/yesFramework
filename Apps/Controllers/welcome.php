@@ -1,5 +1,6 @@
 <?php
-use Apps\Models\Hello;
+use Core\Classess\Base; //Basic model supports load_view function
+use Apps\Models\Hello; //user model
 
 $data ='<h2>yesFramework has been installed correctly (probably :))</h2>';
 $data .= Hello::hello_user('Stranger'); //check Models/Hello.class.php
@@ -15,6 +16,6 @@ $data_to_body = array (
 	"footer" => "example footer"
 	);
 	
-$base->load_view('body.php',$data_to_body);
+Base::load_view('body.php',$data_to_body);
 
 ?>

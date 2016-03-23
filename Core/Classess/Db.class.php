@@ -3,7 +3,7 @@ namespace Core\Classess;
 
 class Db{
 	
-	static public function pdo_insert($query,$var = array()){
+	public static function pdo_insert($query,$var = array()){
 		global $PDO;
 		global $database_type;
 		try{
@@ -25,7 +25,7 @@ class Db{
 		return $last_id;
 	}
 	
-	static public function pdo_update($query,$var = array()){
+	public static function pdo_update($query,$var = array()){
 		global $PDO;
 		global $database_type;
 		try{
@@ -45,7 +45,7 @@ class Db{
 		return $result;
 	}
 	
-	static public function pdo_query($query){
+	public static function pdo_query($query){
 		global $PDO;
 		try{
 				$qr = $PDO->prepare($query);
@@ -58,7 +58,7 @@ class Db{
 		return $result;
 	}
 	
-	static public function pdo_read($query,$var = array()){
+	public static function pdo_read($query,$var = array()){
 		global $PDO;
 		global $database_type;
 
@@ -80,7 +80,7 @@ class Db{
 		return $result;
 	}
 	
-	static public function pdo_delete($query,$var = array()){
+	public static function pdo_delete($query,$var = array()){
 		global $PDO;
 		global $database_type;
 		try{
@@ -100,7 +100,7 @@ class Db{
 		return $result;
 	}
 	
-	static public function pdo_transaction($query = array()){
+	public static function pdo_transaction($query = array()){
 		global $PDO;
 		global $database_type;
 		try{

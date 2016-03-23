@@ -3,7 +3,7 @@ namespace Core\Classess;
 
 class View{
 
-	public function input($type,$name, $options = array()){
+	public static function input($type,$name, $options = array()){
 		if(isset($type)){$type=' type="'.$type.'" ';}else{$type=NULL;}
 		if(isset($name)){$nameform=' name="'.$name.'" ';}else{$nameform=NULL;}
 		if(isset($options['id'])){$id=' id="'.$options['id'].'" ';}else{$id=NULL;}
@@ -18,7 +18,7 @@ class View{
                 return preg_replace('/\s\s+/', ' ', $result);
 	}
 	
-	public function option($value1,$value2=NULL){
+	public static function option($value1,$value2=NULL){
 		if($value2==NULL){$value2=$value1;}
 		return '<option value="'.$value1.'">'.$value2.'</option>';
 	}

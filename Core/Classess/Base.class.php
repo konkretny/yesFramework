@@ -3,7 +3,7 @@ namespace Core\Classess;
 
 class Base{
     
-	public function load_view($file,$var = array()){
+	static public function load_view($file,$var = array()){
 		extract($var);
 		$view = new View();
 		ob_start();
@@ -12,12 +12,12 @@ class Base{
 		echo $render;
 	}
 	
-	public function send_service_email($toemail,$title,$message_body){
+	static public function send_service_email($toemail,$title,$message_body){
 		$header = "Content-type: text/html; charset=UTF-8"."\r\n"."From: ".NAME."<".MAIN_EMAIL.">";
 		mail(trim($toemail), $title, $message_body, $header);
 	}
         
-	public function send_mail($fromemail,$toemail,$title,$message_body){
+	static public function send_mail($fromemail,$toemail,$title,$message_body){
 		$header = "Content-type: text/html; charset=UTF-8"."\r\n"."From: ".NAME."<".$fromemail.">";
 		mail(trim($toemail), $title, $message_body, $header);
 	}
