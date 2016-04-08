@@ -27,8 +27,8 @@ function secure_input($data){
 	return $data;
 }
 
-function redirect($data){
-	header('Location: '.$data);
+function redirect($url){
+	header('Location: '.$url);
 	exit;
 }
 
@@ -50,10 +50,11 @@ function decrypt($key,$value){
     return rtrim(mdecrypt_generic($mopen, base64_decode($value)));
 }
 
-function curl_get($url)
+function curl_get($url,$time)
 {
     $c = curl_init();  
     curl_setopt($c,CURLOPT_URL,$url);
+    curl_setopt($c, CURLOPT_TIMEOUT, $time);
     curl_setopt($c,CURLOPT_RETURNTRANSFER,true);
     $output=curl_exec($c);
     curl_close($c);
@@ -61,7 +62,7 @@ function curl_get($url)
     return $output;
 }
  
-function curl_post($url,$params=array())
+function curl_post($url,$time,$params=array())
 {
   $postData = '';
    foreach($params as $k => $v) 
@@ -71,6 +72,7 @@ function curl_post($url,$params=array())
    rtrim($postData, '&');
     $c = curl_init();  
     curl_setopt($c,CURLOPT_URL,$url);
+    curl_setopt($c, CURLOPT_TIMEOUT, $time);
     curl_setopt($c,CURLOPT_RETURNTRANSFER,true);
     curl_setopt($c,CURLOPT_HEADER, false); 
     curl_setopt($c, CURLOPT_POST, count($postData));
@@ -113,6 +115,34 @@ function genMinutesOptionsList(){
 
 function getCSRF(){
     return $_SESSION['csrf'];
+}
+
+function rule_no_empty($array=array(),$param=array()){
+    
+    //param='ALL'
+    if($param[0]=='ALL'){
+        $param=array();
+        foreach($array as $key=>$value){
+            $param[]=$key;
+        }
+    }
+    
+    //check key exists
+    $result=1;
+    foreach($param as $value){
+        if(!array_key_exists($value, $array)){
+            $result=0;
+        }
+    }
+    //check value is empty
+    foreach($array as $key=>$value){
+            if(empty(trim($value)) && in_array($key, $param)){
+                $result=0;
+                break;
+            }
+    }
+    
+    return $result;
 }
 
 

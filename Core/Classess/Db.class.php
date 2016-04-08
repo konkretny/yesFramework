@@ -126,7 +126,7 @@ class Db{
 				$PDO->commit();
 			}else{
 				$PDO->rollBack();
-				$e=errorInfo();
+				$e=$PDO->errorInfo();
 			}
 		
 		return $e;
