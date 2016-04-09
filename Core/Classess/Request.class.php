@@ -13,8 +13,11 @@ class Request{
                 $result = NULL;
             }
         }
-        else{
+        elseif(isset($_GET)){
             $result = $_GET;
+        }
+        else{
+            $result = NULL;
         }
         return $result;
     }
@@ -29,8 +32,11 @@ class Request{
                 $result = NULL;
             }
         }
-        else{
+        elseif(isset($_POST)){
             $result = $_POST;
+        }
+        else{
+            $result = NULL;
         }
         return $result;
     }
@@ -45,8 +51,11 @@ class Request{
                 $result = NULL;
             }
         }
-        else{
+        elseif(isset($_SESSION)){
             $result = $_SESSION;
+        }
+        else{
+            $result = NULL;
         }
         return $result;
     }
@@ -61,8 +70,11 @@ class Request{
                 $result = NULL;
             }
         }
-        else{
+        elseif(isset($_SERVER)){
             $result = $_SERVER;
+        }
+        else{
+            $result = NULL;
         }
         return $result;
     }
