@@ -50,11 +50,13 @@ function decrypt($key,$value){
     return rtrim(mdecrypt_generic($mopen, base64_decode($value)));
 }
 
-function curl_get($url,$time)
+function curl_get($url,$time=NULL)
 {
     $c = curl_init();  
     curl_setopt($c,CURLOPT_URL,$url);
-    curl_setopt($c, CURLOPT_TIMEOUT, $time);
+    if(isset($time) && is_numeric($time)){
+        curl_setopt($c, CURLOPT_TIMEOUT, $time);
+    }
     curl_setopt($c,CURLOPT_RETURNTRANSFER,true);
     $output=curl_exec($c);
     curl_close($c);
@@ -62,7 +64,7 @@ function curl_get($url,$time)
     return $output;
 }
  
-function curl_post($url,$time,$params=array())
+function curl_post($url,$params=array(),$time=NULL)
 {
   $postData = '';
    foreach($params as $k => $v) 
@@ -72,7 +74,9 @@ function curl_post($url,$time,$params=array())
    rtrim($postData, '&');
     $c = curl_init();  
     curl_setopt($c,CURLOPT_URL,$url);
-    curl_setopt($c, CURLOPT_TIMEOUT, $time);
+    if(isset($time) && is_numeric($time)){
+        curl_setopt($c, CURLOPT_TIMEOUT, $time);
+    }
     curl_setopt($c,CURLOPT_RETURNTRANSFER,true);
     curl_setopt($c,CURLOPT_HEADER, false); 
     curl_setopt($c, CURLOPT_POST, count($postData));

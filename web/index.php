@@ -3,6 +3,7 @@
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
+Version 2.0.2
 */
 
 //check PHP Version
