@@ -1,8 +1,19 @@
 <?php
 namespace Core\Classess;
 
+/**
+ * Class database support
+ */
 class Db{
 	
+        /**
+         * Executes the query INSERT
+         * @global object $PDO
+         * @global int $database_type
+         * @param string $query
+         * @param mixed[] $var
+         * @return int
+         */
 	public static function pdo_insert($query,$var = array()){
 		global $PDO;
 		global $database_type;
@@ -15,7 +26,7 @@ class Db{
 				}
 		
 				$qr->execute();
-				if($database_type == 'mysql:'){$last_id = $PDO->lastInsertId();}
+				if($database_type == 'mysql:' || $database_type == 'sqlite:'){$last_id = $PDO->lastInsertId();}
 				if($database_type == 'pgsql:'){$last_id = $qr->fetch(PDO::FETCH_ASSOC);}
 				$qr->closeCursor();
 			}
@@ -25,6 +36,14 @@ class Db{
 		return $last_id;
 	}
 	
+        /**
+         * Executes the query UPDATE
+         * @global object $PDO
+         * @global int $database_type
+         * @param string $query
+         * @param mixed[] $var
+         * @return int
+         */
 	public static function pdo_update($query,$var = array()){
 		global $PDO;
 		global $database_type;
@@ -45,6 +64,12 @@ class Db{
 		return $result;
 	}
 	
+        /**
+         * Executes the query
+         * @global object $PDO
+         * @param string $query
+         * @return int
+         */
 	public static function pdo_query($query){
 		global $PDO;
 		try{
@@ -58,6 +83,14 @@ class Db{
 		return $result;
 	}
 	
+        /**
+         * Executes the query SELECT
+         * @global object $PDO
+         * @global int $database_type
+         * @param string $query
+         * @param mixed[] $var
+         * @return string[]
+         */
 	public static function pdo_read($query,$var = array()){
 		global $PDO;
 		global $database_type;
@@ -80,6 +113,14 @@ class Db{
 		return $result;
 	}
 	
+        /**
+         * Executes the query DELETE
+         * @global object $PDO
+         * @global int $database_type
+         * @param string $query
+         * @param mixed[] $var
+         * @return int
+         */
 	public static function pdo_delete($query,$var = array()){
 		global $PDO;
 		global $database_type;
@@ -100,9 +141,17 @@ class Db{
 		return $result;
 	}
 	
+        /**
+         * Executes transactions
+         * @global object $PDO
+         * @global int $database_type
+         * @param string[] $query
+         * @return int
+         */
 	public static function pdo_transaction($query = array()){
 		global $PDO;
 		global $database_type;
+                $commit = true;
 		try{
 			$e=1;
 			$PDO->beginTransaction(); 
@@ -113,19 +162,25 @@ class Db{
 							$qr->bindValue($i, $bindvalue);
 							$i++;
 						}
-					$qr->execute();
+					$result = $qr->execute();
+                                        if(!$result){
+                                            $commit=false;
+                                            $e=0;
+                                        }
 				}
 			  
 			
 			}
 			catch(PDOException $e) {
 				$PDO->rollBack();
-				echo 'Connection error: ' . $e->getMessage();
+				echo 'Connection error trans';
+                                $commit = false;
+                                $e=0;
 			}
-			if($qr->errorInfo()[0]==0){
-				$PDO->commit();
+			if(!$commit){
+                                $PDO->rollBack();
 			}else{
-				$PDO->rollBack();
+				$PDO->commit();
 				$e=$PDO->errorInfo();
 			}
 		

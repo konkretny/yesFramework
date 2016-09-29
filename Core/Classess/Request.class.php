@@ -1,8 +1,17 @@
 <?php
 namespace Core\Classess;
 
+/**
+ * Request handler class
+ */
 class Request{
     
+    /**
+     * GET Request
+     * @global mixed[] $_GET
+     * @param mixed[] $value
+     * @return mixed[]
+     */
     public static function get($value=NULL){
         global $_GET;
         if(!empty(trim($value))){
@@ -22,6 +31,12 @@ class Request{
         return $result;
     }
     
+    /**
+     * POST Request
+     * @global mixed[] $_POST
+     * @param mixed[] $value
+     * @return mixed[]
+     */
     public static function post($value=NULL){
         global $_POST;
         if(!empty(trim($value))){
@@ -41,6 +56,12 @@ class Request{
         return $result;
     }
     
+    /**
+     * SESSION Request
+     * @global mixed[] $_SESSION
+     * @param mixed[] $value
+     * @return mixed[]
+     */
     public static function session($value=NULL){
         global $_SESSION;
         if(!empty(trim($value))){
@@ -60,6 +81,12 @@ class Request{
         return $result;
     }
     
+    /**
+     * SERVER Request
+     * @global mixed[] $_SERVER
+     * @param mixed[] $value
+     * @return mixed[]
+     */
     public static function server($value=NULL){
         global $_SERVER;
         if(!empty(trim($value))){
@@ -78,5 +105,31 @@ class Request{
         }
         return $result;
     }
+    
+    /**
+     * COOKIE Request
+     * @global mixed[] $_COOKIE
+     * @param mixed[] $value
+     * @return mixed[]
+     */
+    public static function cookies($value=NULL){
+        global $_COOKIE;
+        if(!empty(trim($value))){
+            if(isset($_COOKIE[$value])){
+                $result = $_COOKIE[$value];
+            }
+            else{
+                $result = NULL;
+            }
+        }
+        elseif(isset($_COOKIE)){
+            $result = $_COOKIE;
+        }
+        else{
+            $result = NULL;
+        }
+        return $result;
+    }
+    
 }
 ?>
