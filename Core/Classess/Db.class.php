@@ -17,10 +17,12 @@ class Db{
 	public static function pdo_insert($query,$var = array()){
 		global $PDO;
 		global $database_type;
+                $last_id=0;
 		try{
 				$qr = $PDO->prepare($query);
 				$i=1;
 				foreach($var as $value){
+                                    if(true_empty($value)){$value='';}
 					$qr->bindValue($i, $value);
 					$i++;
 				}
@@ -47,6 +49,7 @@ class Db{
 	public static function pdo_update($query,$var = array()){
 		global $PDO;
 		global $database_type;
+                $result=0;
 		try{
 				$qr = $PDO->prepare($query);
 				$i=1;
@@ -72,6 +75,7 @@ class Db{
          */
 	public static function pdo_query($query){
 		global $PDO;
+                $result=0;
 		try{
 				$qr = $PDO->prepare($query);
 				$result = $qr->execute();
@@ -124,6 +128,7 @@ class Db{
 	public static function pdo_delete($query,$var = array()){
 		global $PDO;
 		global $database_type;
+                $result=0;
 		try{
 				$qr = $PDO->prepare($query);
 				$i=1;
@@ -152,6 +157,7 @@ class Db{
 		global $PDO;
 		global $database_type;
                 $commit = true;
+                $last_id=NULL;
 		try{
 			$e=1;
 			$PDO->beginTransaction(); 
@@ -159,10 +165,17 @@ class Db{
 						$qr = $PDO->prepare($value[0]);
 						$i=1;
 						foreach($value[1] as $bindvalue){
-							$qr->bindValue($i, $bindvalue);
+                                                        if($bindvalue=='last_id'){
+                                                            $qr->bindValue($i, $last_id);   
+                                                        }
+                                                        else{
+                                                            $qr->bindValue($i, $bindvalue);    
+                                                        }
 							$i++;
 						}
 					$result = $qr->execute();
+                                            if($database_type == 'mysql:' || $database_type == 'sqlite:'){$last_id = $PDO->lastInsertId();}
+                                            if($database_type == 'pgsql:'){$last_id = $qr->fetch(PDO::FETCH_ASSOC);}
                                         if(!$result){
                                             $commit=false;
                                             $e=0;
@@ -184,7 +197,7 @@ class Db{
 				$e=$PDO->errorInfo();
 			}
 		
-		return $e;
+		return $commit;
 	}
 	
 }
