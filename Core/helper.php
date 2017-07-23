@@ -252,4 +252,21 @@ function rule_no_empty($array=array(),$param=array()){
     return $result;
 }
 
+
+/**
+ * Checks whether the variable is really empty. If it returns 1, if anything contains 0, then returns 0.
+ * @param string $data
+ * @return int
+ */
+function true_empty($data){
+    if($data===0){
+        return 0;
+    }elseif(empty(trim($data))){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
 ?>
