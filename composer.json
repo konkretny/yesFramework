@@ -11,6 +11,11 @@
             "role": "Author"
         }
     ],
+    "autoload":{
+        "psr-4": {
+            "yesFramework\\": "src/"
+        }
+    },
     "require": {
         "php": ">=5.5.24"
     }

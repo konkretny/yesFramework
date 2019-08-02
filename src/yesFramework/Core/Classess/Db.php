@@ -1,0 +1,280 @@
+<?php
+
+namespace yesFramework\Core\Classess;
+
+interface DbInterface
+{
+	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true): int;
+	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true);
+	public static function pdo_query(string $query): bool;
+	public static function pdo_read(string $query, array $var = [], bool $key = false): array;
+	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array;
+	public static function pdo_delete(string $query, array $var = []): int;
+	public static function pdo_transaction(array $query = []): bool;
+}
+
+/**
+ * Class database support
+ */
+class Db implements DbInterface
+{
+
+	/**
+	 * Executes the query INSERT
+	 * @global object $PDO
+	 * @global int $database_type
+	 * @param string $query
+	 * @param mixed[] $var
+	 * @param bool $secure_input
+	 * @return int
+	 */
+	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true): int
+	{
+		global $PDO;
+		global $database_type;
+		$last_id = 0;
+		try {
+			$qr = $PDO->prepare($query);
+			$i = 1;
+			foreach ($var as $value) {
+				if (true_empty($value)) {
+					$value = '';
+				}
+				if ($secure_input === true) {
+					$qr->bindValue($i, secure_input($value));
+				} else {
+					$qr->bindValue($i, $value);
+				}
+
+				$i++;
+			}
+
+			$qr->execute();
+			if ($database_type == 'mysql:' || $database_type == 'sqlite:') {
+				$last_id = $PDO->lastInsertId();
+			}
+			if ($database_type == 'pgsql:') {
+				$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
+			}
+			$qr->closeCursor();
+		} catch (PDOException $e) {
+			echo 'Database connection error.';
+		}
+		return $last_id;
+	}
+
+	/**
+	 * Executes the query UPDATE
+	 * @global object $PDO
+	 * @global int $database_type
+	 * @param string $query
+	 * @param mixed[] $var
+	 * @param bool $execute_result
+	 * @param bool $secure_input
+	 * @return int
+	 */
+	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true)
+	{
+		global $PDO;
+		$result = false;
+		try {
+			$qr = $PDO->prepare($query);
+			$i = 1;
+			foreach ($var as $value) {
+				$qr->bindValue($i, $value);
+				if ($secure_input === true) {
+					$qr->bindValue($i, secure_input($value));
+				} else {
+					$qr->bindValue($i, $value);
+				}
+				$i++;
+			}
+
+			$result_execute = $qr->execute();
+			$result = $qr->rowCount();
+			$qr->closeCursor();
+		} catch (PDOException $e) {
+			echo 'Database connection error.';
+		}
+		if ($execute_result === true) {
+			return $result_execute;
+		} else {
+			return $result;
+		}
+	}
+
+	/**
+	 * Executes the query
+	 * @global object $PDO
+	 * @param string $query
+	 * @return int
+	 */
+	public static function pdo_query(string $query): bool
+	{
+		global $PDO;
+		$result = 0;
+		try {
+			$qr = $PDO->prepare($query);
+			$result = $qr->execute();
+			$qr->closeCursor();
+		} catch (PDOException $e) {
+			echo 'Database connection error.';
+		}
+		return $result;
+	}
+
+	/**
+	 * Executes the query SELECT
+	 * @global object $PDO
+	 * @global int $database_type
+	 * @param string $query
+	 * @param mixed[] $var
+	 * @param int $key
+	 * @return string[]
+	 */
+	public static function pdo_read(string $query, array $var = [], bool $key = false): array
+	{
+		global $PDO;
+		try {
+			$qr = $PDO->prepare($query);
+			if ($key === true) {
+				foreach ($var as $key => $value) {
+					$qr->bindValue($key, $value);
+				}
+			} else {
+				$i = 1;
+				foreach ($var as $value) {
+					$qr->bindValue($i, $value);
+					$i++;
+				}
+			}
+
+			$qr->execute();
+			$result = $qr->fetchAll();
+			$qr->closeCursor();
+		} catch (PDOException $e) {
+			echo 'Database connection error.';
+		}
+		return $result;
+	}
+
+
+
+	/**
+	 * Read witouch numbers
+	 * @param type $query
+	 * @param type $var
+	 * @param type $key
+	 * @return type
+	 */
+	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array
+	{
+		global $PDO;
+
+		try {
+			$qr = $PDO->prepare($query);
+			if ($key === true) {
+				foreach ($var as $key => $value) {
+					$qr->bindValue($key, $value);
+				}
+			} else {
+				$i = 1;
+				foreach ($var as $value) {
+					$qr->bindValue($i, $value);
+					$i++;
+				}
+			}
+
+			$qr->execute();
+			$result = $qr->fetchAll(\PDO::FETCH_ASSOC);
+			$qr->closeCursor();
+		} catch (PDOException $e) {
+			echo 'Database connection error.';
+		}
+		return $result;
+	}
+
+	/**
+	 * Executes the query DELETE
+	 * @global object $PDO
+	 * @global int $database_type
+	 * @param string $query
+	 * @param mixed[] $var
+	 * @return int
+	 */
+	public static function pdo_delete(string $query, array $var = []): int
+	{
+		global $PDO;
+		$result = false;
+		try {
+			$qr = $PDO->prepare($query);
+			$i = 1;
+			foreach ($var as $value) {
+				$qr->bindValue($i, $value);
+				$i++;
+			}
+
+			$qr->execute();
+			$result = $qr->rowCount();
+			$qr->closeCursor();
+		} catch (PDOException $e) {
+			echo 'Database connection error.';
+		}
+		return $result;
+	}
+
+	/**
+	 * Executes transactions
+	 * @global object $PDO
+	 * @global int $database_type
+	 * @param string[] $query
+	 * @return bool
+	 */
+	public static function pdo_transaction(array $query = []): bool
+	{
+		global $PDO;
+		global $database_type;
+		$commit = true;
+		$last_id = NULL;
+		try {
+			$e = 1;
+			$PDO->beginTransaction();
+			foreach ($query as $value) {
+				$qr = $PDO->prepare($value[0]);
+				$i = 1;
+				foreach ($value[1] as $bindvalue) {
+					if ($bindvalue == 'last_id') {
+						$qr->bindValue($i, $last_id);
+					} else {
+						$qr->bindValue($i, $bindvalue);
+					}
+					$i++;
+				}
+				$result = $qr->execute();
+				if ($database_type == 'mysql:' || $database_type == 'sqlite:') {
+					$last_id = $PDO->lastInsertId();
+				}
+				if ($database_type == 'pgsql:') {
+					$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
+				}
+				if (!$result) {
+					$commit = false;
+					$e = 0;
+				}
+			}
+		} catch (PDOException $e) {
+			$PDO->rollBack();
+			echo 'Connection error trans';
+			$commit = false;
+			$e = 0;
+		}
+		if (!$commit) {
+			$PDO->rollBack();
+		} else {
+			$PDO->commit();
+			$e = $PDO->errorInfo();
+		}
+
+		return $commit;
+	}
+}

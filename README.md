@@ -4,5 +4,5 @@ Enjoy! :)
 
 More information: http://yesframework.com
 
-Version 2.0.5
+Version 3.0.0beta
 http://konkretny.pl
