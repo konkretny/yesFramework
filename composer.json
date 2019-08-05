@@ -1,0 +1,22 @@
+{
+    "name": "konkretny/yesframework",
+    "description": "it's very, very simple PHP framework.",
+    "keywords": ["php","framework","yesframework"],
+    "homepage": "http://yesframework.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Marcin Romanowicz",
+            "homepage": "http://konkretny.pl",
+            "role": "Author"
+        }
+    ],
+    "autoload":{
+        "psr-4": {
+            "yesFramework\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.0.0"
+    }
+}
