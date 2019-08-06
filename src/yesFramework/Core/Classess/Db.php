@@ -4,13 +4,13 @@ namespace yesFramework\Core\Classess;
 
 interface DbInterface
 {
-	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true): int;
-	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true);
+	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int;
+	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false);
 	public static function pdo_query(string $query): bool;
 	public static function pdo_read(string $query, array $var = [], bool $key = false): array;
 	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array;
-	public static function pdo_delete(string $query, array $var = []): int;
-	public static function pdo_transaction(array $query = []): bool;
+	public static function pdo_delete(string $query, array $var = [], bool $key = false): int;
+	public static function pdo_transaction(array $query = [], bool $key = false): bool;
 }
 
 /**
@@ -28,7 +28,7 @@ class Db implements DbInterface
 	 * @param bool $secure_input
 	 * @return int
 	 */
-	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true, $key = false): int
+	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int
 	{
 		global $PDO;
 		global $database_type;
@@ -86,7 +86,7 @@ class Db implements DbInterface
 	 * @param bool $secure_input
 	 * @return int
 	 */
-	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, $key = false)
+	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false)
 	{
 		global $PDO;
 		$result = false;
@@ -225,7 +225,7 @@ class Db implements DbInterface
 	 * @param mixed[] $var
 	 * @return int
 	 */
-	public static function pdo_delete(string $query, array $var = [], $key = false): int
+	public static function pdo_delete(string $query, array $var = [], bool $key = false): int
 	{
 		global $PDO;
 		$result = false;
@@ -259,62 +259,61 @@ class Db implements DbInterface
 	 * @param string[] $query
 	 * @return bool
 	 */
-	public static function pdo_transaction(array $query = []): bool
+	public static function pdo_transaction(array $query = [], bool $key = false): bool
 	{
 		global $PDO;
 		global $database_type;
 		$commit = true;
 		$last_id = NULL;
-		try{
-			$e=1;
-			$PDO->beginTransaction(); 
-				foreach($query as $value){
-						$qr = $PDO->prepare($value[0]);
-                                if($key===true){
-                                        foreach($value[1] as $key=> $bindvalue){
-                                                if($bindvalue=='last_id'){
-                                                $qr->bindValue($key, $last_id);   
-                                                }
-                                                else{
-                                                $qr->bindValue($key, $bindvalue);    
-                                                }
-                                        }
-                                }else{
-                                        $i=1;
-                                        foreach($value[1] as $bindvalue){
-                                                if($bindvalue=='last_id'){
-                                                $qr->bindValue($i, $last_id);   
-                                                }
-                                                else{
-                                                $qr->bindValue($i, $bindvalue);    
-                                                }
-                                                $i++;
-                                        }
-                                }
-					$result = $qr->execute();
-                                            if($database_type == 'mysql:' || $database_type == 'sqlite:'){$last_id = $PDO->lastInsertId();}
-                                            if($database_type == 'pgsql:'){$last_id = $qr->fetch(PDO::FETCH_ASSOC);}
-                                        if(!$result){
-                                            $commit=false;
-                                            $e=0;
-                                        }
+		try {
+			$e = 1;
+			$PDO->beginTransaction();
+			foreach ($query as $value) {
+				$qr = $PDO->prepare($value[0]);
+				if (key === true) {
+					foreach ($value[1] as $key => $bindvalue) {
+						if ($bindvalue == 'last_id') {
+							$qr->bindValue($key, $last_id);
+						} else {
+							$qr->bindValue($key, $bindvalue);
+						}
+					}
+				} else {
+					$i = 1;
+					foreach ($value[1] as $bindvalue) {
+						if ($bindvalue == 'last_id') {
+							$qr->bindValue($i, $last_id);
+						} else {
+							$qr->bindValue($i, $bindvalue);
+						}
+						$i++;
+					}
 				}
-			  
-			
+				$result = $qr->execute();
+				if ($database_type == 'mysql:' || $database_type == 'sqlite:') {
+					$last_id = $PDO->lastInsertId();
+				}
+				if ($database_type == 'pgsql:') {
+					$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
+				}
+				if (!$result) {
+					$commit = false;
+					$e = 0;
+				}
 			}
-			catch(PDOException $e) {
-				$PDO->rollBack();
-				echo 'Connection error trans';
-                                $commit = false;
-                                $e=0;
-			}
-			if(!$commit){
-                                $PDO->rollBack();
-			}else{
-				$PDO->commit();
-				$e=$PDO->errorInfo();
-			}
-		
+		} catch (PDOException $e) {
+			$PDO->rollBack();
+			echo 'Connection error trans';
+			$commit = false;
+			$e = 0;
+		}
+		if (!$commit) {
+			$PDO->rollBack();
+		} else {
+			$PDO->commit();
+			$e = $PDO->errorInfo();
+		}
+
 		return $commit;
 	}
 }

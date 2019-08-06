@@ -451,3 +451,25 @@ function secure_array(array $array): array
     }
     return $newarray;
 }
+
+/**
+ * Check JSON file
+ */
+function check_json(string $json): bool
+{
+    $check = json_decode($json);
+    if ($check === null) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+/**
+ * Fix CORS
+ */
+function CORSHeaders():void{
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: *');
+    header('Access-Control-Allow-Headers: Content-Type');
+}
