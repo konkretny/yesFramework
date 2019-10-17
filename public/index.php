@@ -62,6 +62,11 @@ function ClassLoader($className)
 }
 spl_autoload_register('ClassLoader');
 
+//autoload composer
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once(__DIR__ . '/../vendor/autoload.php');
+}
+
 //load helpers
 require_once(__DIR__ . '/../src/yesFramework/Core/helper.php');
 

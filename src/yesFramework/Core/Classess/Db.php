@@ -7,8 +7,7 @@ interface DbInterface
 	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int;
 	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false);
 	public static function pdo_query(string $query): bool;
-	public static function pdo_read(string $query, array $var = [], bool $key = false): array;
-	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array;
+	public static function pdo_read(string $query, array $var = [], bool $key = false, bool $no_read_numbers): array;
 	public static function pdo_delete(string $query, array $var = [], bool $key = false): int;
 	public static function pdo_transaction(array $query = [], bool $key = false): bool;
 }
@@ -63,10 +62,10 @@ class Db implements DbInterface
 			}
 
 			$qr->execute();
-			if ($database_type == 'mysql:' || $database_type == 'sqlite:') {
+			if ($qr->rowCount() > 0 && $database_type == 'mysql:' || $database_type == 'sqlite:') {
 				$last_id = $PDO->lastInsertId();
 			}
-			if ($database_type == 'pgsql:') {
+			if ($qr->rowCount() > 0 && $database_type == 'pgsql:') {
 				$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
 			}
 			$qr->closeCursor();
@@ -152,10 +151,11 @@ class Db implements DbInterface
 	 * @global int $database_type
 	 * @param string $query
 	 * @param mixed[] $var
-	 * @param int $key
+	 * @param bool $key
+	 * @param bool $no_read_numbers
 	 * @return string[]
 	 */
-	public static function pdo_read(string $query, array $var = [], bool $key = false): array
+	public static function pdo_read(string $query, array $var = [], bool $key = false, bool $no_read_numbers = false): array
 	{
 		global $PDO;
 		try {
@@ -173,49 +173,20 @@ class Db implements DbInterface
 			}
 
 			$qr->execute();
-			$result = $qr->fetchAll();
-			$qr->closeCursor();
-		} catch (PDOException $e) {
-			echo 'Database connection error.';
-		}
-		return $result;
-	}
-
-
-
-	/**
-	 * Read witouch numbers
-	 * @param type $query
-	 * @param type $var
-	 * @param type $key
-	 * @return type
-	 */
-	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array
-	{
-		global $PDO;
-
-		try {
-			$qr = $PDO->prepare($query);
-			if ($key === true) {
-				foreach ($var as $key => $value) {
-					$qr->bindValue($key, $value);
-				}
-			} else {
-				$i = 1;
-				foreach ($var as $value) {
-					$qr->bindValue($i, $value);
-					$i++;
-				}
+			if($no_read_numbers===true){
+				$result = $qr->fetchAll(\PDO::FETCH_ASSOC);
+			}else{
+				$result = $qr->fetchAll();
 			}
-
-			$qr->execute();
-			$result = $qr->fetchAll(\PDO::FETCH_ASSOC);
+			
 			$qr->closeCursor();
 		} catch (PDOException $e) {
 			echo 'Database connection error.';
 		}
 		return $result;
 	}
+
+
 
 	/**
 	 * Executes the query DELETE
@@ -290,10 +261,10 @@ class Db implements DbInterface
 					}
 				}
 				$result = $qr->execute();
-				if ($database_type == 'mysql:' || $database_type == 'sqlite:') {
+				if ($result === true && $database_type == 'mysql:' || $database_type == 'sqlite:') {
 					$last_id = $PDO->lastInsertId();
 				}
-				if ($database_type == 'pgsql:') {
+				if ($result === true && $database_type == 'pgsql:') {
 					$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
 				}
 				if (!$result) {

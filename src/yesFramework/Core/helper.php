@@ -38,7 +38,7 @@ function check_ip(string $ip): bool
  * @param int $param
  * @return int
  */
-function check_integer(int $data, bool $param = false): bool
+function check_integer($data, bool $param = false): bool
 {
     if ($param === false) { //only +
         if (preg_match('/^[0-9]+$/', $data)) {
@@ -139,6 +139,12 @@ function curl_get(string $url, int $time, bool $cert_verify = true): string
 
     curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
     $output = curl_exec($c);
+
+    //catch http code other than 200
+    if (curl_getinfo($c, CURLINFO_HTTP_CODE) !== 200) {
+        $output = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    }
+
     if ($output === false) {
         $output = 'curl error';
     }
@@ -175,6 +181,12 @@ function curl_get_header(string $url, int $time, bool $cert_verify = true, array
     curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
     curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
     $output = curl_exec($c);
+
+    //catch http code other than 200
+    if (curl_getinfo($c, CURLINFO_HTTP_CODE) !== 200) {
+        $output = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    }
+
     if ($output === false) {
         $output = 'curl error';
     }
@@ -214,6 +226,12 @@ function curl_post(string $url, int $time, bool $cert_verify = true, array $para
     curl_setopt($c, CURLOPT_POST, count($params));
     curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($params));
     $output = curl_exec($c);
+
+    //catch http code other than 200
+    if (curl_getinfo($c, CURLINFO_HTTP_CODE) !== 200) {
+        $output = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    }
+
     if ($output === false) {
         $output = 'curl error';
     }
@@ -255,6 +273,12 @@ function curl_post_header(string $url, int $time, bool $cert_verify = true, arra
     curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($params));
     curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
     $output = curl_exec($c);
+
+    //catch http code other than 200
+    if (curl_getinfo($c, CURLINFO_HTTP_CODE) !== 200) {
+        $output = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    }
+
     if ($output === false) {
         $output = 'curl error';
     }
@@ -291,15 +315,44 @@ function curl_json_post(string $url, int $time, bool $cert_verify = true, string
 
     curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($c, CURLOPT_HEADER, false);
+    curl_setopt($c, CURLOPT_HTTPHEADER, [
+        'Content-Type' => 'application/json'
+    ]);
     curl_setopt($c, CURLOPT_POST, 1);
     curl_setopt($c, CURLOPT_POSTFIELDS, 'json=' . $params);
     $output = curl_exec($c);
+
+    //catch http code other than 200
+    if (curl_getinfo($c, CURLINFO_HTTP_CODE) !== 200) {
+        $output = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    }
+
     if ($output === false) {
         $output = 'curl error';
     }
     curl_close($c);
 
     return $output;
+}
+
+
+function yesCurl(string $url, string $method = "GET", int $timeout = 10, bool $cert_verify = true, array $params = [], array $headers = []): array
+{
+    $c = curl_init();
+    curl_setopt($c, CURLOPT_URL, $url);
+    curl_setopt($c, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($c, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($c, CURLOPT_SSL_VERIFYPEER, $cert_verify);
+
+    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($c, CURLOPT_HEADER, false);
+    curl_setopt($c, CURLOPT_POST, count($params));
+    curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+    $output = curl_exec($c);
+    $http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    curl_close($c);
+    return [$output, ['httpCode' => $http_code]];
 }
 
 
@@ -429,7 +482,7 @@ function url_base64_decode(string $string): string
  * @param string $data
  * @return int
  */
-function true_empty(mixed $data): bool
+function true_empty($data): bool
 {
     if ($data === 0 || $data === '0') {
         return false;
@@ -466,10 +519,49 @@ function check_json(string $json): bool
 }
 
 /**
- * Fix CORS
+ * Fix
  */
-function CORSHeaders():void{
+function CORSHeaders()
+{
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: *');
     header('Access-Control-Allow-Headers: Content-Type');
+}
+
+function _t(string $string)
+{
+    return $string;
+}
+
+/**
+ * Return json result
+ */
+function json_result(string $status, string $message, string $message_type): string
+{
+    return json_encode([
+        "status" => $status,
+        "payload" => [
+            'message' => _t($message),
+            'messageType' => $message_type
+        ]
+    ]);
+}
+
+/**
+ * Calcluate pagination
+ */
+function pagiantionCalc(int $page_number, int $number_rows_on_page): array
+{
+    if (check_integer($page_number) && check_integer($number_rows_on_page)) {
+        if ($page_number === 1) {
+            $from = 0;
+            $to = $number_rows_on_page;
+        } else {
+            $from = ($page_number * $number_rows_on_page) - $number_rows_on_page;
+            $to = $number_rows_on_page;
+        }
+    } else {
+        return [0, 0];
+    }
+    return [$from, $to];
 }
