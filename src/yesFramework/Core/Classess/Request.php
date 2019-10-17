@@ -4,11 +4,11 @@ namespace yesFramework\Core\Classess;
 
 interface RequestInterface
 {
-    public static function get(string $value): array;
-    public static function post(string $value): array;
-    public static function session(string $value): array;
-    public static function server(string $value): array;
-    public static function cookies(string $value): array;
+    public static function get(string $value);
+    public static function post(string $value);
+    public static function session(string $value);
+    public static function server(string $value);
+    public static function cookies(string $value);
 }
 
 /**
@@ -23,14 +23,14 @@ class Request implements RequestInterface
      * @param mixed[] $value
      * @return mixed[]
      */
-    public static function get(string $value): array
+    public static function get(string $value)
     {
         global $_GET;
         if (!empty(trim($value))) {
             if (isset($_GET[$value])) {
                 $result = $_GET[$value];
             } else {
-                $result = [];
+                $result = NULL;
             }
         } elseif (isset($_GET)) {
             $result = $_GET;
@@ -46,14 +46,14 @@ class Request implements RequestInterface
      * @param mixed[] $value
      * @return mixed[]
      */
-    public static function post(string $value): array
+    public static function post(string $value)
     {
         global $_POST;
         if (!empty(trim($value))) {
             if (isset($_POST[$value])) {
                 $result = $_POST[$value];
             } else {
-                $result = [];
+                $result = NULL;
             }
         } elseif (isset($_POST)) {
             $result = $_POST;
@@ -69,14 +69,14 @@ class Request implements RequestInterface
      * @param mixed[] $value
      * @return mixed[]
      */
-    public static function session(string $value): array
+    public static function session(string $value)
     {
         global $_SESSION;
         if (!empty(trim($value))) {
             if (isset($_SESSION[$value])) {
                 $result = $_SESSION[$value];
             } else {
-                $result = [];
+                $result = NULL;
             }
         } elseif (isset($_SESSION)) {
             $result = $_SESSION;
@@ -92,14 +92,14 @@ class Request implements RequestInterface
      * @param mixed[] $value
      * @return mixed[]
      */
-    public static function server(string $value): array
+    public static function server(string $value)
     {
         global $_SERVER;
         if (!empty(trim($value))) {
             if (isset($_SERVER[$value])) {
                 $result = $_SERVER[$value];
             } else {
-                $result = [];
+                $result = NULL;
             }
         } elseif (isset($_SERVER)) {
             $result = $_SERVER;
@@ -115,14 +115,14 @@ class Request implements RequestInterface
      * @param mixed[] $value
      * @return mixed[]
      */
-    public static function cookies(string $value): array
+    public static function cookies(string $value)
     {
         global $_COOKIE;
         if (!empty(trim($value))) {
             if (isset($_COOKIE[$value])) {
                 $result = $_COOKIE[$value];
             } else {
-                $result = [];
+                $result = NULL;
             }
         } elseif (isset($_COOKIE)) {
             $result = $_COOKIE;
