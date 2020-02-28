@@ -5,7 +5,7 @@ declare(strict_types=1);
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
-Version 3.0.2
+Version 3.1.1
 */
 
 //check PHP Version

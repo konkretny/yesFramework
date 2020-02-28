@@ -336,26 +336,6 @@ function curl_json_post(string $url, int $time, bool $cert_verify = true, string
 }
 
 
-function yesCurl(string $url, string $method = "GET", int $timeout = 10, bool $cert_verify = true, array $params = [], array $headers = []): array
-{
-    $c = curl_init();
-    curl_setopt($c, CURLOPT_URL, $url);
-    curl_setopt($c, CURLOPT_CUSTOMREQUEST, $method);
-    curl_setopt($c, CURLOPT_TIMEOUT, $timeout);
-    curl_setopt($c, CURLOPT_SSL_VERIFYPEER, $cert_verify);
-
-    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($c, CURLOPT_HEADER, false);
-    curl_setopt($c, CURLOPT_POST, count($params));
-    curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($params));
-    curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
-    $output = curl_exec($c);
-    $http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
-    curl_close($c);
-    return [$output, ['httpCode' => $http_code]];
-}
-
-
 /**
  * Get IP address
  * @return string
@@ -564,4 +544,25 @@ function pagiantionCalc(int $page_number, int $number_rows_on_page): array
         return [0, 0];
     }
     return [$from, $to];
+}
+
+
+/**
+ * Check data is exist and is no empty. If no empty return true
+ */
+function no_empty($data): bool
+{
+    $result = false;
+    if (isset($data)) {
+        if (gettype(($data)) !== 'array' && gettype(($data)) !== 'object') {
+            if (!empty(trim($data))) {
+                $result = true;
+            }
+        } else {
+            if (count($data) > 0) {
+                $result = true;
+            }
+        }
+    }
+    return $result;
 }
