@@ -335,6 +335,34 @@ function curl_json_post(string $url, int $time, bool $cert_verify = true, string
     return $output;
 }
 
+/**
+ * Universal CURL function
+ * @param string $url
+ * @param string $method
+ * @param int $timeout
+ * @param bool $cert_verify
+ * @param array $params
+ * @param array $headers
+ */
+function yesCurl(string $url, string $method = "GET", int $timeout = 10, bool $cert_verify = true, array $params = [], array $headers = []): array
+{
+    $c = curl_init();
+    curl_setopt($c, CURLOPT_URL, $url);
+    curl_setopt($c, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($c, CURLOPT_TIMEOUT, $timeout);
+    curl_setopt($c, CURLOPT_SSL_VERIFYPEER, $cert_verify);
+
+    curl_setopt($c, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($c, CURLOPT_HEADER, false);
+    curl_setopt($c, CURLOPT_POST, count($params));
+    curl_setopt($c, CURLOPT_POSTFIELDS, http_build_query($params));
+    curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
+    $output = curl_exec($c);
+    $http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
+    curl_close($c);
+    return [$output, ['httpCode' => $http_code]];
+}
+
 
 /**
  * Get IP address
