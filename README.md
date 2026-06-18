@@ -1,5 +1,5 @@
-# yesFramework
-Simple framework in PHP
+# yesFramework - LEGACY
+Simple LEGACY framework in PHP. I plan to update in the future
 Enjoy! :)
 
 More information: http://yesframework.com
