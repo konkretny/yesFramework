@@ -4,13 +4,13 @@ namespace yesFramework\Core\Classess;
 
 interface DbInterface
 {
-	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int;
-	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false);
-	public static function pdo_query(string $query): bool;
-	public static function pdo_read(string $query, array $var = [], bool $key = false): array;
-	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array;
-	public static function pdo_delete(string $query, array $var = [], bool $key = false): int;
-	public static function pdo_transaction(array $query = [], bool $key = false): bool;
+	public function insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int|array;
+	public function update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false): int|bool;
+	public function query(string $query): bool;
+	public function read(string $query, array $var = [], bool $key = false): array;
+	public function readNoNumbers(string $query, array $var = [], bool $key = false): array;
+	public function delete(string $query, array $var = [], bool $key = false): int;
+	public function transaction(array $query = [], bool $key = false): bool;
 }
 
 /**
@@ -18,30 +18,35 @@ interface DbInterface
  */
 class Db implements DbInterface
 {
+	private \PDO $pdo;
+	private string $databaseType;
+
+	public function __construct(\PDO $pdo, string $databaseType)
+	{
+		$this->pdo = $pdo;
+		$this->databaseType = $databaseType;
+	}
 
 	/**
 	 * Executes the query INSERT
-	 * @global object $PDO
-	 * @global int $database_type
 	 * @param string $query
 	 * @param mixed[] $var
 	 * @param bool $secure_input
-	 * @return int
+	 * @param bool $key
+	 * @return int|array
 	 */
-	public static function pdo_insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int
+	public function insert(string $query, array $var = [], bool $secure_input = true, bool $key = false): int|array
 	{
-		global $PDO;
-		global $database_type;
 		$last_id = 0;
 		try {
-			$qr = $PDO->prepare($query);
+			$qr = $this->pdo->prepare($query);
 			if ($key === true) {
 				foreach ($var as $key => $value) {
-					if (true_empty($value)) {
+					if (Validator::isTrueEmpty($value)) {
 						$value = '';
 					}
 					if ($secure_input === true) {
-						$qr->bindValue($key, secure_input($value));
+						$qr->bindValue($key, Str::secureInput((string)$value));
 					} else {
 						$qr->bindValue($key, $value);
 					}
@@ -49,11 +54,11 @@ class Db implements DbInterface
 			} else {
 				$i = 1;
 				foreach ($var as $value) {
-					if (true_empty($value)) {
+					if (Validator::isTrueEmpty($value)) {
 						$value = '';
 					}
 					if ($secure_input === true) {
-						$qr->bindValue($i, secure_input($value));
+						$qr->bindValue($i, Str::secureInput((string)$value));
 					} else {
 						$qr->bindValue($i, $value);
 					}
@@ -63,39 +68,38 @@ class Db implements DbInterface
 			}
 
 			$qr->execute();
-			if ($qr->rowCount() > 0 && $database_type == 'mysql:' || $database_type == 'sqlite:') {
-				$last_id = $PDO->lastInsertId();
+			if ($qr->rowCount() > 0 && ($this->databaseType == 'mysql:' || $this->databaseType == 'sqlite:')) {
+				$last_id = (int)$this->pdo->lastInsertId();
 			}
-			if ($qr->rowCount() > 0 && $database_type == 'pgsql:') {
+			if ($qr->rowCount() > 0 && $this->databaseType == 'pgsql:') {
 				$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
 			}
 			$qr->closeCursor();
 		} catch (\PDOException $e) {
-			echo 'Database connection error.';
+			echo 'Database connection error: ' . $e->getMessage();
 		}
 		return $last_id;
 	}
 
 	/**
 	 * Executes the query UPDATE
-	 * @global object $PDO
-	 * @global int $database_type
 	 * @param string $query
 	 * @param mixed[] $var
 	 * @param bool $execute_result
 	 * @param bool $secure_input
-	 * @return int
+	 * @param bool $key
+	 * @return int|bool
 	 */
-	public static function pdo_update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false)
+	public function update(string $query, array $var = [], bool $execute_result = false, bool $secure_input = true, bool $key = false): int|bool
 	{
-		global $PDO;
 		$result = false;
+		$result_execute = false;
 		try {
-			$qr = $PDO->prepare($query);
+			$qr = $this->pdo->prepare($query);
 			if ($key === true) {
 				foreach ($var as $key => $value) {
 					if ($secure_input === true) {
-						$qr->bindValue($key, secure_input($value));
+						$qr->bindValue($key, Str::secureInput((string)$value));
 					} else {
 						$qr->bindValue($key, $value);
 					}
@@ -105,7 +109,7 @@ class Db implements DbInterface
 				foreach ($var as $value) {
 					$qr->bindValue($i, $value);
 					if ($secure_input === true) {
-						$qr->bindValue($i, secure_input($value));
+						$qr->bindValue($i, Str::secureInput((string)$value));
 					} else {
 						$qr->bindValue($i, $value);
 					}
@@ -117,7 +121,7 @@ class Db implements DbInterface
 			$result = $qr->rowCount();
 			$qr->closeCursor();
 		} catch (\PDOException $e) {
-			echo 'Database connection error.';
+			echo 'Database connection error: ' . $e->getMessage();
 		}
 		if ($execute_result === true) {
 			return $result_execute;
@@ -128,38 +132,34 @@ class Db implements DbInterface
 
 	/**
 	 * Executes the query
-	 * @global object $PDO
 	 * @param string $query
-	 * @return int
+	 * @return bool
 	 */
-	public static function pdo_query(string $query): bool
+	public function query(string $query): bool
 	{
-		global $PDO;
-		$result = 0;
+		$result = false;
 		try {
-			$qr = $PDO->prepare($query);
+			$qr = $this->pdo->prepare($query);
 			$result = $qr->execute();
 			$qr->closeCursor();
 		} catch (\PDOException $e) {
-			echo 'Database connection error.';
+			echo 'Database connection error: ' . $e->getMessage();
 		}
 		return $result;
 	}
 
 	/**
 	 * Executes the query SELECT
-	 * @global object $PDO
-	 * @global int $database_type
 	 * @param string $query
 	 * @param mixed[] $var
-	 * @param int $key
-	 * @return string[]
+	 * @param bool $key
+	 * @return array
 	 */
-	public static function pdo_read(string $query, array $var = [], bool $key = false): array
+	public function read(string $query, array $var = [], bool $key = false): array
 	{
-		global $PDO;
+		$result = [];
 		try {
-			$qr = $PDO->prepare($query);
+			$qr = $this->pdo->prepare($query);
 			if ($key === true) {
 				foreach ($var as $key => $value) {
 					$qr->bindValue($key, $value);
@@ -176,26 +176,23 @@ class Db implements DbInterface
 			$result = $qr->fetchAll();
 			$qr->closeCursor();
 		} catch (\PDOException $e) {
-			echo 'Database connection error.';
+			echo 'Database connection error: ' . $e->getMessage();
 		}
 		return $result;
 	}
 
-
-
 	/**
 	 * Read witouch numbers
-	 * @param type $query
-	 * @param type $var
-	 * @param type $key
-	 * @return type
+	 * @param string $query
+	 * @param array $var
+	 * @param bool $key
+	 * @return array
 	 */
-	public static function pdo_read_no_numbers(string $query, array $var = [], bool $key = false): array
+	public function readNoNumbers(string $query, array $var = [], bool $key = false): array
 	{
-		global $PDO;
-
+		$result = [];
 		try {
-			$qr = $PDO->prepare($query);
+			$qr = $this->pdo->prepare($query);
 			if ($key === true) {
 				foreach ($var as $key => $value) {
 					$qr->bindValue($key, $value);
@@ -212,25 +209,23 @@ class Db implements DbInterface
 			$result = $qr->fetchAll(\PDO::FETCH_ASSOC);
 			$qr->closeCursor();
 		} catch (\PDOException $e) {
-			echo 'Database connection error.';
+			echo 'Database connection error: ' . $e->getMessage();
 		}
 		return $result;
 	}
 
 	/**
 	 * Executes the query DELETE
-	 * @global object $PDO
-	 * @global int $database_type
 	 * @param string $query
 	 * @param mixed[] $var
+	 * @param bool $key
 	 * @return int
 	 */
-	public static function pdo_delete(string $query, array $var = [], bool $key = false): int
+	public function delete(string $query, array $var = [], bool $key = false): int
 	{
-		global $PDO;
-		$result = false;
+		$result = 0;
 		try {
-			$qr = $PDO->prepare($query);
+			$qr = $this->pdo->prepare($query);
 			if ($key === true) {
 				foreach ($var as $key => $value) {
 					$qr->bindValue($key, $value);
@@ -247,29 +242,26 @@ class Db implements DbInterface
 			$result = $qr->rowCount();
 			$qr->closeCursor();
 		} catch (\PDOException $e) {
-			echo 'Database connection error.';
+			echo 'Database connection error: ' . $e->getMessage();
 		}
 		return $result;
 	}
 
 	/**
 	 * Executes transactions
-	 * @global object $PDO
-	 * @global int $database_type
-	 * @param string[] $query
+	 * @param array $query
+	 * @param bool $key
 	 * @return bool
 	 */
-	public static function pdo_transaction(array $query = [], bool $key = false): bool
+	public function transaction(array $query = [], bool $key = false): bool
 	{
-		global $PDO;
-		global $database_type;
 		$commit = true;
 		$last_id = NULL;
 		try {
 			$e = 1;
-			$PDO->beginTransaction();
+			$this->pdo->beginTransaction();
 			foreach ($query as $value) {
-				$qr = $PDO->prepare($value[0]);
+				$qr = $this->pdo->prepare($value[0]);
 				if ($key === true) {
 					foreach ($value[1] as $key => $bindvalue) {
 						if ($bindvalue == 'last_id') {
@@ -290,10 +282,10 @@ class Db implements DbInterface
 					}
 				}
 				$result = $qr->execute();
-				if ($qr->execute() === true && $database_type == 'mysql:' || $database_type == 'sqlite:') {
-					$last_id = $PDO->lastInsertId();
+				if ($result === true && ($this->databaseType == 'mysql:' || $this->databaseType == 'sqlite:')) {
+					$last_id = $this->pdo->lastInsertId();
 				}
-				if ($qr->execute() === true && $database_type == 'pgsql:') {
+				if ($result === true && $this->databaseType == 'pgsql:') {
 					$last_id = $qr->fetch(\PDO::FETCH_ASSOC);
 				}
 				if (!$result) {
@@ -301,17 +293,16 @@ class Db implements DbInterface
 					$e = 0;
 				}
 			}
-		} catch (\PDOException $e) {
-			$PDO->rollBack();
-			echo 'Connection error trans';
+		} catch (\PDOException $ex) {
+			$this->pdo->rollBack();
+			echo 'Connection error trans: ' . $ex->getMessage();
 			$commit = false;
 			$e = 0;
 		}
 		if (!$commit) {
-			$PDO->rollBack();
+			$this->pdo->rollBack();
 		} else {
-			$PDO->commit();
-			$e = $PDO->errorInfo();
+			$this->pdo->commit();
 		}
 
 		return $commit;

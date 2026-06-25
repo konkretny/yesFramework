@@ -9,8 +9,8 @@ Version 3.1.1
 */
 
 //check PHP Version
-if (PHP_VERSION_ID < 70000) {
-    echo 'Your version of PHP is ' . phpversion() . '. Required min. 7.0.0';
+if (PHP_VERSION_ID < 80400) {
+    echo 'Your version of PHP is ' . phpversion() . '. Required min. 8.4.0';
     exit;
 }
 
@@ -53,27 +53,22 @@ function yesErrorHandler($errno, $errstr, $errfile, $errline)
 session_start();
 
 
-//autloader
-function ClassLoader($className)
-{
-    $className = (string) str_replace('\\', DIRECTORY_SEPARATOR, $className);
-    require_once(__DIR__ . '/../src/' . $className . '.php');
-    return true;
-}
-spl_autoload_register('ClassLoader');
-
 //autoload composer
 if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
     require_once(__DIR__ . '/../vendor/autoload.php');
 }
 
-//load helpers
-require_once(__DIR__ . '/../src/yesFramework/Core/helper.php');
+//load dotenv
+use yesFramework\Core\Classess\DotEnv;
+DotEnv::load(__DIR__ . '/../.env');
 
 //load config
 require_once(__DIR__ . '/../src/yesFramework/Core/config.php');
 
-//PDO connect
+//PDO connect & DB Class setup
+use yesFramework\Core\Classess\Db;
+
+$dbInstance = null;
 if (strlen(DBNAME) > 0 || strlen(DB_SQLITE_FILE_PATH) > 0) {
     if (PORT == '') {
         $port_nr = '';
@@ -93,18 +88,20 @@ if (strlen(DBNAME) > 0 || strlen(DB_SQLITE_FILE_PATH) > 0) {
 
     try {
         if (DBTYPE == 2) {
-            $PDO = new \PDO($database_type . DB_SQLITE_FILE_PATH);
+            $pdo = new \PDO($database_type . DB_SQLITE_FILE_PATH);
         } else {
-            $PDO = new \PDO($database_type . 'host=' . HOST . $port_nr . ';dbname=' . DBNAME, DBUSER, DBPASS, array(\PDO::ATTR_EMULATE_PREPARES => false, \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+            $pdo = new \PDO($database_type . 'host=' . HOST . $port_nr . ';dbname=' . DBNAME, DBUSER, DBPASS, array(\PDO::ATTR_EMULATE_PREPARES => false, \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
             if (strlen(PGSQLSCHEMA) > 0) {
-                $PDO->exec('SET search_path TO ' . PGSQLSCHEMA);
+                $pdo->exec('SET search_path TO ' . PGSQLSCHEMA);
             }
         }
-    } catch (PDOException $e) {
-        echo 'Connection error';
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        //uncomment if you need.
-        //$e->getMessage();
+        $dbInstance = new Db($pdo, $database_type);
+
+    } catch (\PDOException $e) {
+        echo 'Database connection error';
+        exit;
     }
 }
 
@@ -114,22 +111,17 @@ if (!isset($_SESSION['csrf'])) {
     $_SESSION['csrf'] = $csrf;
 }
 
-//start
-if (!isset($_GET['page'])) {
-    require_once(__DIR__ . '/../src/yesFramework/App/Controllers/' . CONTROLLER);
-} else {
-    $dir = scandir(__DIR__ . '/../src/yesFramework/App/Controllers/');
-    $dir_ok = 0;
-    foreach ($dir as $check_dir) {
-        $check_dir = str_replace('.php', '', $check_dir);
-        if ($check_dir == $_GET['page']) {
-            $dir_ok = $check_dir;
-        }
-    }
-    if ($dir_ok != '0') {
-        require_once(__DIR__ . '/../src/yesFramework/App/Controllers/' . $dir_ok . '.php');
-    } else {
-        http_response_code(404);
-        redirect('EPages/404.html');
-    }
-}
+// Initialize Router
+use yesFramework\Core\Classess\Router;
+use yesFramework\App\Controllers\WelcomeController;
+
+$router = new Router($dbInstance);
+
+// Register routes
+$router->get('/', [WelcomeController::class, 'index']);
+
+// Resolve the request
+$requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+$requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+$router->resolve($requestMethod, $requestUri);

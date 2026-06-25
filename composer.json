@@ -13,10 +13,18 @@
     ],
     "autoload":{
         "psr-4": {
-            "yesFramework\\": "src/"
+            "yesFramework\\": "src/yesFramework/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=8.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12.5"
     }
 }

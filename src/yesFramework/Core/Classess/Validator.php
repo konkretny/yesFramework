@@ -1,82 +1,68 @@
 <?php
 
-namespace yesFramework\Core\Classess;
+declare(strict_types=1);
 
-interface ValidatorInterface
-{
-    public static function check_email(string $email): void;
-    public static function check_ip(string $ip): void;
-    public static function check_integer(int $data, bool $param): void;
-    public static function rule_no_empty(array $array = [], array $param = []): void;
-    public static function check_integer_in_array(bool $param, array $array = []): void;
-}
+namespace yesFramework\Core\Classess;
 
 /**
  * Validation class
  */
-class Validator implements ValidatorInterface
+class Validator
 {
 
-    /**
-     * Validates e-mail
-     * @param string $email
-     */
-    public static function check_email(string $email): void
+    public static function isEmail(string $email): bool
     {
-        if (check_email($email) !== true) {
-            echo 'Error validate e-mial';
-            exit;
-        }
+        return (bool)filter_var($email, FILTER_VALIDATE_EMAIL);
     }
 
-    /**
-     * Validates IP
-     * @param string $ip
-     */
-    public static function check_ip(string $ip): void
+    public static function isIp(string $ip): bool
     {
-        if (check_ip($ip) !== true) {
-            echo 'Error validate ip';
-            exit;
-        }
+        return (bool)filter_var($ip, FILTER_VALIDATE_IP);
     }
 
-    /**
-     * Validates int
-     * @param mixed $data
-     * @param int $param
-     */
-    public static function check_integer(int $data, bool $param): void
+    public static function isInteger($data, bool $allowNegative = false): bool
     {
-        if (check_integer($data, $param) !== true) {
-            echo 'Error validate integer';
-            exit;
+        if ($allowNegative) {
+            return preg_match('/^-?[0-9]+$/', (string)$data) === 1;
         }
+        return preg_match('/^[0-9]+$/', (string)$data) === 1;
     }
 
-    /**
-     * Check empty var
-     * @param mixed[] $array
-     * @param mixed[] $param
-     */
-    public static function rule_no_empty(array $array = [], array $param = []): void
+    public static function isIntegerInArray(array $array, bool $allowNegative = false): bool
     {
-        if (rule_no_empty($array, $param) !== true) {
-            echo 'Error validate empty value';
-            exit;
+        foreach ($array as $value) {
+            if (!self::isInteger($value, $allowNegative)) {
+                return false;
+            }
         }
+        return true;
     }
 
-    /**
-     * Check integer in array
-     * @param int $param
-     * @param mixed[] $array
-     */
-    public static function check_integer_in_array(bool $param, array $array = []): void
+    public static function noEmpty(array $array, array $keysToCheck = []): bool
     {
-        if (check_integer_in_array($param, $array) !== true) {
-            echo 'Error validate integer in array';
-            exit;
+        if (empty($keysToCheck) || (isset($keysToCheck[0]) && $keysToCheck[0] === 'ALL')) {
+            $keysToCheck = array_keys($array);
         }
+
+        foreach ($keysToCheck as $key) {
+            if (!array_key_exists($key, $array)) {
+                return false;
+            }
+        }
+
+        foreach ($array as $key => $value) {
+            if (in_array($key, $keysToCheck) && empty(trim((string)$value))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static function isTrueEmpty($data): bool
+    {
+        if ($data === 0 || $data === '0') {
+            return false;
+        }
+        return empty(trim((string)$data));
     }
 }
