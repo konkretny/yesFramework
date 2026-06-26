@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace yesFramework\Core\Classes;
 
 interface BaseInterface
@@ -28,9 +30,9 @@ class Base implements BaseInterface
                 extract($var, EXTR_SKIP);
                 $view = new View();
                 ob_start();
-                require_once(__DIR__ . '/../../App/Views/' . $content);
+                require __DIR__ . '/../../App/Views/' . $content;
                 $body_content = ob_get_clean();
-                require_once(__DIR__ . '/../../App/Views/' . $template);
+                require __DIR__ . '/../../App/Views/' . $template;
         }
 
         /**

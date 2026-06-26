@@ -12,7 +12,7 @@ class Http
     public static function redirect(string $url, bool $redirect_301 = false): void
     {
         if ($redirect_301) {
-            header("HTTP/1.1 301 Moved Permanently");
+            http_response_code(301);
         }
         header('Location: ' . $url);
         exit;
@@ -30,6 +30,14 @@ class Http
      * Get server IP address.
      */
     public static function getServIP(): string
+    {
+        return $_SERVER['SERVER_ADDR'] ?? '';
+    }
+
+    /**
+     * Get HTTP Referer.
+     */
+    public static function getReferer(): string
     {
         return $_SERVER['HTTP_REFERER'] ?? '';
     }
@@ -91,9 +99,14 @@ class Http
 
         $output = curl_exec($c);
         $http_code = curl_getinfo($c, CURLINFO_HTTP_CODE);
+        $error = null;
+        if ($output === false) {
+            $error = curl_error($c);
+            $output = 'curl error: ' . ($error ?: 'unknown error');
+        }
         curl_close($c);
 
-        return [$output ?: 'curl error', ['httpCode' => $http_code]];
+        return [$output, ['httpCode' => $http_code, 'error' => $error]];
     }
 
     /**
@@ -126,7 +139,6 @@ class Http
     public static function curlJsonPost(string $url, int $time = 10, bool $cert_verify = true, string $params = ""): string
     {
         $headers = ['Content-Type: application/json'];
-        // Note: For JSON post we need to pass the raw string
         $c = curl_init();
         curl_setopt($c, CURLOPT_URL, $url);
         curl_setopt($c, CURLOPT_TIMEOUT, $time);
@@ -135,10 +147,10 @@ class Http
         curl_setopt($c, CURLOPT_HEADER, false);
         curl_setopt($c, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($c, CURLOPT_POST, 1);
-        curl_setopt($c, CURLOPT_POSTFIELDS, 'json=' . $params);
+        curl_setopt($c, CURLOPT_POSTFIELDS, $params);
         $output = curl_exec($c);
         if ($output === false) {
-            $output = 'curl error';
+            $output = 'curl error: ' . curl_error($c);
         }
         curl_close($c);
         return $output;

@@ -30,6 +30,8 @@ class ValidatorTest extends TestCase
         $this->assertTrue(Validator::isInteger(-42, true));
 
         $this->assertFalse(Validator::isInteger('abc'));
+        $this->assertFalse(Validator::isInteger([]));
+        $this->assertFalse(Validator::isInteger(new \stdClass()));
     }
 
     public function testIsIntegerInArray(): void
@@ -38,24 +40,29 @@ class ValidatorTest extends TestCase
         $this->assertFalse(Validator::isIntegerInArray([1, 'abc', 3]));
         $this->assertFalse(Validator::isIntegerInArray([1, -2, 3], false));
         $this->assertTrue(Validator::isIntegerInArray([1, -2, 3], true));
+        $this->assertFalse(Validator::isIntegerInArray([1, [], 3]));
     }
 
     public function testNoEmpty(): void
     {
-        $arr = ['a' => 'foo', 'b' => ''];
+        $arr = ['a' => 'foo', 'b' => '', 'c' => []];
 
         $this->assertFalse(Validator::noEmpty($arr, ['a', 'b']));
         $this->assertTrue(Validator::noEmpty($arr, ['a']));
-        $this->assertFalse(Validator::noEmpty($arr, ['c'])); // missing key
+        $this->assertFalse(Validator::noEmpty($arr, ['d'])); // missing key
+        $this->assertFalse(Validator::noEmpty($arr, ['c'])); // empty array key
     }
 
     public function testIsTrueEmpty(): void
     {
         $this->assertTrue(Validator::isTrueEmpty(''));
         $this->assertTrue(Validator::isTrueEmpty('   '));
+        $this->assertTrue(Validator::isTrueEmpty([]));
+        $this->assertTrue(Validator::isTrueEmpty(new \stdClass()));
 
         $this->assertFalse(Validator::isTrueEmpty(0));
         $this->assertFalse(Validator::isTrueEmpty('0'));
         $this->assertFalse(Validator::isTrueEmpty('text'));
+        $this->assertFalse(Validator::isTrueEmpty(['foo']));
     }
 }

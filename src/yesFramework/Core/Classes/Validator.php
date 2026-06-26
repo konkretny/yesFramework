@@ -20,22 +20,21 @@ class Validator
         return (bool)filter_var($ip, FILTER_VALIDATE_IP);
     }
 
-    public static function isInteger($data, bool $allowNegative = false): bool
+    public static function isInteger(mixed $data, bool $allowNegative = false): bool
     {
-        if ($allowNegative) {
-            return preg_match('/^-?[0-9]+$/', (string)$data) === 1;
+        if (!is_scalar($data)) {
+            return false;
         }
-        return preg_match('/^[0-9]+$/', (string)$data) === 1;
+        $dataStr = (string)$data;
+        if ($allowNegative) {
+            return preg_match('/^-?[0-9]+$/', $dataStr) === 1;
+        }
+        return preg_match('/^[0-9]+$/', $dataStr) === 1;
     }
 
     public static function isIntegerInArray(array $array, bool $allowNegative = false): bool
     {
-        foreach ($array as $value) {
-            if (!self::isInteger($value, $allowNegative)) {
-                return false;
-            }
-        }
-        return true;
+        return array_all($array, fn(mixed $value): bool => self::isInteger($value, $allowNegative));
     }
 
     public static function noEmpty(array $array, array $keysToCheck = []): bool
@@ -45,24 +44,24 @@ class Validator
         }
 
         foreach ($keysToCheck as $key) {
-            if (!array_key_exists($key, $array)) {
-                return false;
-            }
-        }
-
-        foreach ($array as $key => $value) {
-            if (in_array($key, $keysToCheck) && empty(trim((string)$value))) {
+            if (!array_key_exists($key, $array) || self::isTrueEmpty($array[$key])) {
                 return false;
             }
         }
         return true;
     }
 
-    public static function isTrueEmpty($data): bool
+    public static function isTrueEmpty(mixed $data): bool
     {
         if ($data === 0 || $data === '0') {
             return false;
         }
-        return empty(trim((string)$data));
+        if (is_array($data)) {
+            return empty($data);
+        }
+        if (!is_scalar($data)) {
+            return true;
+        }
+        return trim((string)$data) === '';
     }
 }

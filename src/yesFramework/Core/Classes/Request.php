@@ -6,11 +6,11 @@ namespace yesFramework\Core\Classes;
 
 interface RequestInterface
 {
-    public static function get(string $value): mixed;
-    public static function post(string $value): mixed;
-    public static function session(string $value): mixed;
-    public static function server(string $value): mixed;
-    public static function cookies(string $value): mixed;
+    public static function get(?string $value = null): mixed;
+    public static function post(?string $value = null): mixed;
+    public static function session(?string $value = null): mixed;
+    public static function server(?string $value = null): mixed;
+    public static function cookies(?string $value = null): mixed;
 }
 
 /**
@@ -21,106 +21,56 @@ class Request implements RequestInterface
 
     /**
      * GET Request
-     * @param string $value
-     * @return mixed
      */
-    public static function get(string $value): mixed
+    public static function get(?string $value = null): mixed
     {
-        if (!empty(trim($value))) {
-            if (isset($_GET[$value])) {
-                $result = $_GET[$value];
-            } else {
-                $result = null;
-            }
-        } elseif (isset($_GET)) {
-            $result = $_GET;
-        } else {
-            $result = [];
+        if ($value !== null && trim($value) !== '') {
+            return $_GET[$value] ?? null;
         }
-        return $result;
+        return $_GET ?? [];
     }
 
     /**
      * POST Request
-     * @param string $value
-     * @return mixed
      */
-    public static function post(string $value): mixed
+    public static function post(?string $value = null): mixed
     {
-        if (!empty(trim($value))) {
-            if (isset($_POST[$value])) {
-                $result = $_POST[$value];
-            } else {
-                $result = null;
-            }
-        } elseif (isset($_POST)) {
-            $result = $_POST;
-        } else {
-            $result = [];
+        if ($value !== null && trim($value) !== '') {
+            return $_POST[$value] ?? null;
         }
-        return $result;
+        return $_POST ?? [];
     }
 
     /**
      * SESSION Request
-     * @param string $value
-     * @return mixed
      */
-    public static function session(string $value): mixed
+    public static function session(?string $value = null): mixed
     {
-        if (!empty(trim($value))) {
-            if (isset($_SESSION[$value])) {
-                $result = $_SESSION[$value];
-            } else {
-                $result = null;
-            }
-        } elseif (isset($_SESSION)) {
-            $result = $_SESSION;
-        } else {
-            $result = [];
+        if ($value !== null && trim($value) !== '') {
+            return $_SESSION[$value] ?? null;
         }
-        return $result;
+        return $_SESSION ?? [];
     }
 
     /**
      * SERVER Request
-     * @param string $value
-     * @return mixed
      */
-    public static function server(string $value): mixed
+    public static function server(?string $value = null): mixed
     {
-        if (!empty(trim($value))) {
-            if (isset($_SERVER[$value])) {
-                $result = $_SERVER[$value];
-            } else {
-                $result = null;
-            }
-        } elseif (isset($_SERVER)) {
-            $result = $_SERVER;
-        } else {
-            $result = [];
+        if ($value !== null && trim($value) !== '') {
+            return $_SERVER[$value] ?? null;
         }
-        return $result;
+        return $_SERVER ?? [];
     }
 
     /**
      * COOKIE Request
-     * @param string $value
-     * @return mixed
      */
-    public static function cookies(string $value): mixed
+    public static function cookies(?string $value = null): mixed
     {
-        if (!empty(trim($value))) {
-            if (isset($_COOKIE[$value])) {
-                $result = $_COOKIE[$value];
-            } else {
-                $result = null;
-            }
-        } elseif (isset($_COOKIE)) {
-            $result = $_COOKIE;
-        } else {
-            $result = [];
+        if ($value !== null && trim($value) !== '') {
+            return $_COOKIE[$value] ?? null;
         }
-        return $result;
+        return $_COOKIE ?? [];
     }
 }

@@ -17,14 +17,17 @@ class Str
         return $data;
     }
 
-    /**
-     * Return new converted array
-     */
     public static function secureArray(array $array): array
     {
         $newarray = [];
         foreach ($array as $key => $value) {
-            $newarray[$key] = self::secureInput((string)$value);
+            if (is_array($value)) {
+                $newarray[$key] = self::secureArray($value);
+            } elseif (is_scalar($value)) {
+                $newarray[$key] = self::secureInput((string)$value);
+            } else {
+                $newarray[$key] = $value;
+            }
         }
         return $newarray;
     }
@@ -46,11 +49,10 @@ class Str
     }
 
     /**
-     * Check JSON file
+     * Check JSON file using PHP 8.3+ json_validate
      */
     public static function isJson(string $json): bool
     {
-        json_decode($json);
-        return json_last_error() === JSON_ERROR_NONE;
+        return json_validate($json);
     }
 }
