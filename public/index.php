@@ -126,8 +126,8 @@ if (!isset($_SESSION['csrf'])) {
 // Initialize Router
 $router = new Router($dbInstance);
 
-// Register routes
-$router->get('/', [WelcomeController::class, 'index']);
+// Automatically scan controllers for #[Route] attributes
+$router->scanControllers(__DIR__ . '/../src/yesFramework/App/Controllers');
 
 // Resolve the request
 $requestUri = $_SERVER['REQUEST_URI'] ?? '/';

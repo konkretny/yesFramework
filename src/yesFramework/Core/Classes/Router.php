@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace yesFramework\Core\Classes;
 
 use yesFramework\Core\Exceptions\NotFoundException;
+use yesFramework\Core\Attributes\Route;
 
 /**
  * Router with dynamic route parameters and middleware support
@@ -52,6 +53,50 @@ class Router
     public function patch(string $path, callable|array $handler): self
     {
         return $this->addRoute('PATCH', $path, $handler);
+    }
+
+    /**
+     * Automatically register routes from PHP 8 Attributes in controllers
+     * 
+     * @param string $directory Path to the controllers directory
+     * @param string $namespace Base namespace for the controllers
+     */
+    public function scanControllers(string $directory, string $namespace = 'yesFramework\\App\\Controllers\\'): void
+    {
+        if (!is_dir($directory)) {
+            return;
+        }
+
+        $files = array_diff(scandir($directory), ['.', '..']);
+
+        foreach ($files as $file) {
+            if (pathinfo($file, PATHINFO_EXTENSION) !== 'php') {
+                continue;
+            }
+
+            $className = $namespace . basename($file, '.php');
+
+            if (!class_exists($className)) {
+                continue;
+            }
+
+            $reflectionClass = new \ReflectionClass($className);
+
+            foreach ($reflectionClass->getMethods() as $method) {
+                $attributes = $method->getAttributes(Route::class);
+
+                foreach ($attributes as $attribute) {
+                    /** @var Route $route */
+                    $route = $attribute->newInstance();
+                    
+                    $this->addRoute(
+                        strtoupper($route->method), 
+                        $route->path, 
+                        [$className, $method->getName()]
+                    );
+                }
+            }
+        }
     }
 
     /**

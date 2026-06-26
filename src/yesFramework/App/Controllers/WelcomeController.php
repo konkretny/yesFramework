@@ -7,6 +7,7 @@ namespace yesFramework\App\Controllers;
 use yesFramework\Core\Classes\Base;
 use yesFramework\App\Models\Hello;
 use yesFramework\Core\Classes\Db;
+use yesFramework\Core\Attributes\Route;
 
 class WelcomeController
 {
@@ -17,6 +18,7 @@ class WelcomeController
         $this->db = $db;
     }
 
+    #[Route('/', method: 'GET')]
     public function index(): void
     {
         $data_from_class = Hello::hello_user('Stranger');
