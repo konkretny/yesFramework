@@ -5,7 +5,7 @@ declare(strict_types=1);
 Author: Marcin Romanowicz
 URL: http://yesframework.com/
 License: MIT
-Version 3.1.1
+Version 3.2.0
 */
 
 //check PHP Version
@@ -59,49 +59,61 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 
 //load dotenv
-use yesFramework\Core\Classess\DotEnv;
+use yesFramework\Core\Classes\DotEnv;
 DotEnv::load(__DIR__ . '/../.env');
 
 //load config
 require_once(__DIR__ . '/../src/yesFramework/Core/config.php');
 
-//PDO connect & DB Class setup
-use yesFramework\Core\Classess\Db;
+// Import framework classes
+use yesFramework\Core\Classes\Db;
+use yesFramework\Core\Classes\DatabaseType;
+use yesFramework\Core\Classes\Router;
+use yesFramework\Core\Exceptions\HttpException;
+use yesFramework\Core\Exceptions\NotFoundException;
+use yesFramework\Core\Exceptions\DatabaseException;
+use yesFramework\App\Controllers\WelcomeController;
 
+// Global exception handler — catches all unhandled exceptions
+set_exception_handler(function (\Throwable $e) {
+    $statusCode = ($e instanceof HttpException) ? $e->getStatusCode() : 500;
+    http_response_code($statusCode);
+
+    if (($_ENV['APP_ENV'] ?? 'development') === 'development') {
+        echo "<h1>{$statusCode} — " . get_class($e) . "</h1>";
+        echo "<p>" . htmlspecialchars($e->getMessage()) . "</p>";
+        echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+    } else {
+        echo "<h1>{$statusCode}</h1>";
+        echo "<p>An error occurred. Please try again later.</p>";
+    }
+});
+
+//PDO connect & DB Class setup
 $dbInstance = null;
 if (strlen(DBNAME) > 0 || strlen(DB_SQLITE_FILE_PATH) > 0) {
-    if (PORT == '') {
-        $port_nr = '';
-    } else {
-        $port_nr = ';port=' . PORT;
-    }
-    if (DBTYPE == 0) {
-        $database_type = 'mysql:';
-    } elseif (DBTYPE == 1) {
-        $database_type = 'pgsql:';
-    } elseif (DBTYPE == 2) {
-        $database_type = 'sqlite:';
-    } else {
-        echo 'error database type';
-        exit;
-    }
+    $port_nr = (PORT !== '') ? ';port=' . PORT : '';
 
     try {
-        if (DBTYPE == 2) {
-            $pdo = new \PDO($database_type . DB_SQLITE_FILE_PATH);
+        if (DBTYPE === DatabaseType::SQLite) {
+            $pdo = new \PDO(DBTYPE->dsnPrefix() . DB_SQLITE_FILE_PATH);
         } else {
-            $pdo = new \PDO($database_type . 'host=' . HOST . $port_nr . ';dbname=' . DBNAME, DBUSER, DBPASS, array(\PDO::ATTR_EMULATE_PREPARES => false, \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"));
+            $pdo = new \PDO(
+                DBTYPE->dsnPrefix() . 'host=' . HOST . $port_nr . ';dbname=' . DBNAME,
+                DBUSER,
+                DBPASS,
+                [\PDO::ATTR_EMULATE_PREPARES => false, \PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8"]
+            );
             if (strlen(PGSQLSCHEMA) > 0) {
                 $pdo->exec('SET search_path TO ' . PGSQLSCHEMA);
             }
         }
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        $dbInstance = new Db($pdo, $database_type);
+        $dbInstance = new Db($pdo, DBTYPE);
 
     } catch (\PDOException $e) {
-        echo 'Database connection error';
-        exit;
+        throw new DatabaseException('Database connection failed: ' . $e->getMessage(), 500, $e);
     }
 }
 
@@ -112,9 +124,6 @@ if (!isset($_SESSION['csrf'])) {
 }
 
 // Initialize Router
-use yesFramework\Core\Classess\Router;
-use yesFramework\App\Controllers\WelcomeController;
-
 $router = new Router($dbInstance);
 
 // Register routes

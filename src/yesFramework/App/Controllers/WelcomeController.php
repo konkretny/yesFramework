@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace yesFramework\App\Controllers;
 
-use yesFramework\Core\Classess\Base;
+use yesFramework\Core\Classes\Base;
 use yesFramework\App\Models\Hello;
-use yesFramework\Core\Classess\Db;
+use yesFramework\Core\Classes\Db;
 
 class WelcomeController
 {

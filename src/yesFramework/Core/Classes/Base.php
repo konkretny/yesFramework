@@ -1,6 +1,6 @@
 <?php
 
-namespace yesFramework\Core\Classess;
+namespace yesFramework\Core\Classes;
 
 interface BaseInterface
 {

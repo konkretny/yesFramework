@@ -2,3 +2,4 @@
 .env
 /Dockerfile
 /docker-compose.yml
+.phpunit.cache

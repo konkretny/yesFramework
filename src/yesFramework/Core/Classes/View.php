@@ -1,11 +1,13 @@
 <?php
 
-namespace yesFramework\Core\Classess;
+declare(strict_types=1);
+
+namespace yesFramework\Core\Classes;
 
 interface ViewInterface
 {
         public static function input(string $type, string $name, array $options = []): string;
-        public static function option(string $value1, string $value2 = NULL): string;
+        public static function option(string $value1, ?string $value2 = NULL): string;
 }
 
 /*
@@ -85,7 +87,7 @@ class View implements ViewInterface
          * @param string $value2
          * @return string
          */
-        public static function option(string $value1, string $value2 = NULL): string
+        public static function option(string $value1, ?string $value2 = NULL): string
         {
                 if ($value2 == NULL) {
                         $value2 = $value1;

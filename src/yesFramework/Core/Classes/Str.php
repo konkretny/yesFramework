@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace yesFramework\Core\Classess;
+namespace yesFramework\Core\Classes;
 
 class Str
 {

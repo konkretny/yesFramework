@@ -1,14 +1,16 @@
 <?php
 
-namespace yesFramework\Core\Classess;
+declare(strict_types=1);
+
+namespace yesFramework\Core\Classes;
 
 interface RequestInterface
 {
-    public static function get(string $value);
-    public static function post(string $value);
-    public static function session(string $value);
-    public static function server(string $value);
-    public static function cookies(string $value);
+    public static function get(string $value): mixed;
+    public static function post(string $value): mixed;
+    public static function session(string $value): mixed;
+    public static function server(string $value): mixed;
+    public static function cookies(string $value): mixed;
 }
 
 /**
@@ -19,18 +21,16 @@ class Request implements RequestInterface
 
     /**
      * GET Request
-     * @global mixed[] $_GET
-     * @param mixed[] $value
-     * @return mixed[]
+     * @param string $value
+     * @return mixed
      */
-    public static function get(string $value)
+    public static function get(string $value): mixed
     {
-        global $_GET;
         if (!empty(trim($value))) {
             if (isset($_GET[$value])) {
                 $result = $_GET[$value];
             } else {
-                $result = NULL;
+                $result = null;
             }
         } elseif (isset($_GET)) {
             $result = $_GET;
@@ -42,18 +42,16 @@ class Request implements RequestInterface
 
     /**
      * POST Request
-     * @global mixed[] $_POST
-     * @param mixed[] $value
-     * @return mixed[]
+     * @param string $value
+     * @return mixed
      */
-    public static function post(string $value)
+    public static function post(string $value): mixed
     {
-        global $_POST;
         if (!empty(trim($value))) {
             if (isset($_POST[$value])) {
                 $result = $_POST[$value];
             } else {
-                $result = NULL;
+                $result = null;
             }
         } elseif (isset($_POST)) {
             $result = $_POST;
@@ -65,18 +63,16 @@ class Request implements RequestInterface
 
     /**
      * SESSION Request
-     * @global mixed[] $_SESSION
-     * @param mixed[] $value
-     * @return mixed[]
+     * @param string $value
+     * @return mixed
      */
-    public static function session(string $value)
+    public static function session(string $value): mixed
     {
-        global $_SESSION;
         if (!empty(trim($value))) {
             if (isset($_SESSION[$value])) {
                 $result = $_SESSION[$value];
             } else {
-                $result = NULL;
+                $result = null;
             }
         } elseif (isset($_SESSION)) {
             $result = $_SESSION;
@@ -88,18 +84,16 @@ class Request implements RequestInterface
 
     /**
      * SERVER Request
-     * @global mixed[] $_SERVER
-     * @param mixed[] $value
-     * @return mixed[]
+     * @param string $value
+     * @return mixed
      */
-    public static function server(string $value)
+    public static function server(string $value): mixed
     {
-        global $_SERVER;
         if (!empty(trim($value))) {
             if (isset($_SERVER[$value])) {
                 $result = $_SERVER[$value];
             } else {
-                $result = NULL;
+                $result = null;
             }
         } elseif (isset($_SERVER)) {
             $result = $_SERVER;
@@ -111,18 +105,16 @@ class Request implements RequestInterface
 
     /**
      * COOKIE Request
-     * @global mixed[] $_COOKIE
-     * @param mixed[] $value
-     * @return mixed[]
+     * @param string $value
+     * @return mixed
      */
-    public static function cookies(string $value)
+    public static function cookies(string $value): mixed
     {
-        global $_COOKIE;
         if (!empty(trim($value))) {
             if (isset($_COOKIE[$value])) {
                 $result = $_COOKIE[$value];
             } else {
-                $result = NULL;
+                $result = null;
             }
         } elseif (isset($_COOKIE)) {
             $result = $_COOKIE;

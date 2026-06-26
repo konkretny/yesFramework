@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use yesFramework\Core\Classes\DatabaseType;
+
 // Environment variables are now used for configuration.
 // Default fallback values are provided if the `.env` file is missing.
 
@@ -21,8 +23,8 @@ if (($_ENV['APP_ENV'] ?? 'development') === 'development') {
     ini_set('display_errors', '0');
 }
 
-// Database configuration
-define("DBTYPE", (int)($_ENV['DB_TYPE'] ?? 0));
+// Database configuration — uses DatabaseType enum instead of magic numbers
+define("DBTYPE", DatabaseType::from((int)($_ENV['DB_TYPE'] ?? 0)));
 define("PGSQLSCHEMA", $_ENV['DB_PGSQL_SCHEMA'] ?? "");
 
 define("HOST", $_ENV['DB_HOST'] ?? "");

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
-use yesFramework\Core\Classess\Validator;
+use yesFramework\Core\Classes\Validator;
 
 class ValidatorTest extends TestCase
 {
